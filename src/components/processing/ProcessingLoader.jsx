@@ -6,7 +6,7 @@ export default function ProcessingLoader() {
     const [progress, setProgress] = useState(0);
     const [elapsedTime, setElapsedTime] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
-    const [selectedModel, setSelectedModel] = useState('transformer'); // iv3-gru or transformer
+    const [selectedModel, setSelectedModel] = useState('iv3-gru'); // iv3-gru or transformer
 
     // Updated processing steps for InceptionV3-GRU model
     const processingSteps = selectedModel === 'transformer' ? [
