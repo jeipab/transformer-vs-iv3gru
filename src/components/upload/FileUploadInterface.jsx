@@ -13,6 +13,9 @@ import { Upload, Video, X, Check, AlertCircle, Play, Files, Plus, Download, Shar
     const [duration, setDuration] = useState(272); // 4:32 in seconds
     const [volume, setVolume] = useState(0.8);
     const [showSettings, setShowSettings] = useState(false);
+    const [selectedModel, setSelectedModel] = useState('');
+    const [isModelSelected, setIsModelSelected] = useState(false);
+    const [videoRef, setVideoRef] = useState(null);
 
     const handleDragOver = (e) => {
         e.preventDefault();
@@ -146,7 +149,15 @@ import { Upload, Video, X, Check, AlertCircle, Play, Files, Plus, Download, Shar
     };
 
     const togglePlayback = () => {
-        setIsPlaying(!isPlaying);
+        if (videoRef) {
+            if (isPlaying) {
+                videoRef.pause();
+                setIsPlaying(false);
+            } else {
+                videoRef.play();
+                setIsPlaying(true);
+            }
+        }
     };
 
     const getCurrentFile = () => {
@@ -170,7 +181,22 @@ import { Upload, Video, X, Check, AlertCircle, Play, Files, Plus, Download, Shar
     const handleSeek = (e) => {
         const rect = e.currentTarget.getBoundingClientRect();
         const percent = (e.clientX - rect.left) / rect.width;
-        setCurrentTime(percent * duration);
+        const newTime = percent * duration;
+        setCurrentTime(newTime);
+        
+        if (videoRef) {
+            videoRef.currentTime = newTime;
+        }
+    };
+
+    const handleFileSelection = (index) => {
+        setSelectedFileIndex(index);
+        setIsPlaying(false);
+        setCurrentTime(0);
+        if (videoRef) {
+            videoRef.currentTime = 0;
+            videoRef.pause();
+        }
     };
 
     return (
@@ -293,13 +319,12 @@ import { Upload, Video, X, Check, AlertCircle, Play, Files, Plus, Download, Shar
                                 ? 'border-blue-500 bg-blue-50 shadow-sm' 
                                 : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                             }`}
-                            onClick={() => setSelectedFileIndex(index)}
+                            onClick={() => handleFileSelection(index)}
                             >
                             {/* Thumbnail */}
                             <div className="relative w-20 h-12 bg-gray-900 rounded overflow-hidden mr-4 flex-shrink-0">
-                                <img 
-                                src={fileObj.thumbnail} 
-                                alt="Video thumbnail" 
+                                <video 
+                                src={URL.createObjectURL(fileObj.file)} 
                                 className="w-full h-full object-cover"
                                 />
                                 <div className="absolute inset-0 flex items-center justify-center">
@@ -406,8 +431,88 @@ import { Upload, Video, X, Check, AlertCircle, Play, Files, Plus, Download, Shar
                     </div>
                 </div>
                 )}
+
+                 {/* Model Selection */}
+            {files.length > 0 && uploadStatus === 'success' && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                Select Recognition Model
+                </h3>
+                <div className="space-y-3 mb-6">
+                <div 
+                    className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    selectedModel === 'transformer' 
+                        ? 'border-blue-500 bg-blue-50' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => {
+                    setSelectedModel('transformer');
+                    setIsModelSelected(true);
+                    }}
+                >
+                    <div className="flex items-center">
+                    <div className={`w-4 h-4 rounded-full border-2 mr-3 ${
+                        selectedModel === 'transformer' 
+                        ? 'border-blue-500 bg-blue-500' 
+                        : 'border-gray-300'
+                    }`}>
+                        {selectedModel === 'transformer' && (
+                        <div className="w-full h-full rounded-full bg-white scale-50"></div>
+                        )}
+                    </div>
+                    <div>
+                        <h4 className="font-medium text-gray-900">Transformer Model</h4>
+                        <p className="text-sm text-gray-600">Advanced attention-based architecture for complex sign recognition</p>
+                    </div>
+                    </div>
+                </div>
+                
+                <div 
+                    className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    selectedModel === 'iv3-gru' 
+                        ? 'border-blue-500 bg-blue-50' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => {
+                    setSelectedModel('iv3-gru');
+                    setIsModelSelected(true);
+                    }}
+                >
+                    <div className="flex items-center">
+                    <div className={`w-4 h-4 rounded-full border-2 mr-3 ${
+                        selectedModel === 'iv3-gru' 
+                        ? 'border-blue-500 bg-blue-500' 
+                        : 'border-gray-300'
+                    }`}>
+                        {selectedModel === 'iv3-gru' && (
+                        <div className="w-full h-full rounded-full bg-white scale-50"></div>
+                        )}
+                    </div>
+                    <div>
+                        <h4 className="font-medium text-gray-900">IV3-GRU Model</h4>
+                        <p className="text-sm text-gray-600">Inception V3 with GRU for efficient real-time processing</p>
+                    </div>
+                    </div>
+                </div>
+                </div>
+
+                {/* Go Button */}
+                {isModelSelected && (
+                <button 
+                    className="w-full flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm"
+                    onClick={() => {
+                    // Handle model selection and start analysis
+                    console.log(`Starting analysis with ${selectedModel} model`);
+                    }}
+                >
+                    <Zap size={20} className="mr-2" />
+                    Start Filipino Sign Language Recognition
+                </button>
+                )}
             </div>
-            
+            )}
+            </div>
+
             {/* Right Panel - Video Preview */}
             <div className="space-y-6">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -428,13 +533,16 @@ import { Upload, Video, X, Check, AlertCircle, Play, Files, Plus, Download, Shar
                 {files.length > 0 && uploadStatus === 'success' ? (
                     <div className="relative">
                     {/* Video Player */}
-                    <div className="relative bg-black aspect-video">
-                        <img 
-                        src={`/api/placeholder/640/360?text=${encodeURIComponent(getCurrentFile().file.name.split('.')[0])}`}
-                        alt="Video preview" 
-                        className="w-full h-full object-cover"
-                        />
-                        
+                    {/* Video Player */}
+                <div className="relative bg-black aspect-video">
+                    <video 
+                    src={URL.createObjectURL(getCurrentFile().file)}
+                    className="w-full h-full object-cover"
+                    onLoadedMetadata={(e) => setDuration(e.target.duration)}
+                    onTimeUpdate={(e) => setCurrentTime(e.target.currentTime)}
+                    controls={false}
+                    ref={setVideoRef}
+                    />
                         {/* Video Overlay Controls */}
                         <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors group">
                         {/* Center Play Button */}
@@ -512,7 +620,7 @@ import { Upload, Video, X, Check, AlertCircle, Play, Files, Plus, Download, Shar
                         <div className="p-4 bg-gray-50 border-t border-gray-200">
                         <div className="flex items-center justify-between">
                             <button
-                            onClick={() => setSelectedFileIndex(Math.max(0, selectedFileIndex - 1))}
+                            onClick={() => handleFileSelection(Math.max(0, selectedFileIndex - 1))}
                             disabled={selectedFileIndex === 0}
                             className="flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
                             >
@@ -523,7 +631,7 @@ import { Upload, Video, X, Check, AlertCircle, Play, Files, Plus, Download, Shar
                             {files.map((fileObj, index) => (
                                 <button
                                 key={fileObj.id}
-                                onClick={() => setSelectedFileIndex(index)}
+                                onClick={() => handleFileSelection(index)}
                                 className={`w-3 h-3 rounded-full transition-all ${
                                     selectedFileIndex === index 
                                     ? 'bg-blue-500 scale-125' 
@@ -534,7 +642,7 @@ import { Upload, Video, X, Check, AlertCircle, Play, Files, Plus, Download, Shar
                             </div>
                             
                             <button
-                            onClick={() => setSelectedFileIndex(Math.min(files.length - 1, selectedFileIndex + 1))}
+                            onClick={() => handleFileSelection(Math.min(files.length - 1, selectedFileIndex + 1))}
                             disabled={selectedFileIndex === files.length - 1}
                             className="flex items-center px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
                             >
@@ -566,9 +674,16 @@ import { Upload, Video, X, Check, AlertCircle, Play, Files, Plus, Download, Shar
                 {files.length > 0 && uploadStatus === 'success' && getCurrentFile() && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div className="flex flex-wrap gap-3 mb-4">
-                    <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm">
+                    <button 
+                        className={`flex items-center px-4 py-2 rounded-lg transition-colors font-medium shadow-sm ${
+                            isModelSelected 
+                            ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        }`}
+                        disabled={!isModelSelected}
+                        >
                         <Zap size={18} className="mr-2" />
-                        Start Analysis
+                        {isModelSelected ? `Analyze with ${selectedModel.toUpperCase()}` : 'Select Model First'}
                     </button>
                     <button className="flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
                         <Download size={18} className="mr-2" />
@@ -590,10 +705,12 @@ import { Upload, Video, X, Check, AlertCircle, Play, Files, Plus, Download, Shar
                     )}
                     </div>
                     <div className="text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
-                    {files.length > 1 
-                        ? `Video ${selectedFileIndex + 1} of ${files.length} ready for analysis. Use batch process to analyze all videos simultaneously with optimized performance.`
-                        : 'Video ready for sign language analysis. Click "Start Analysis" to begin keypoint extraction and gesture recognition.'
-                    }
+                        {!isModelSelected 
+                            ? 'Please select a recognition model before starting the Filipino Sign Language analysis.'
+                            : files.length > 1 
+                            ? `Video ${selectedFileIndex + 1} of ${files.length} ready for analysis with ${selectedModel.toUpperCase()} model. Use batch process to analyze all videos simultaneously.`
+                            : `Video ready for Filipino Sign Language analysis using ${selectedModel.toUpperCase()} model. Click "Start Analysis" to begin processing.`
+                        }
                     </div>
                 </div>
                 )}
