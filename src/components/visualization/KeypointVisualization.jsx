@@ -6,6 +6,7 @@ export default function KeypointVisualization() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [showKeypoints, setShowKeypoints] = useState(true);
     const [showSkeleton, setShowSkeleton] = useState(true);
+    const [selectedModel, setSelectedModel] = useState('transformer'); // iv3-gru or transformer
     
     // Batch navigation state - aligned with results interface
     const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
@@ -366,6 +367,17 @@ export default function KeypointVisualization() {
                                     <button className="p-2 hover:bg-gray-700 rounded-lg transition-colors">
                                         <SkipForward size={20} />
                                     </button>
+                                </div>
+
+                                {/* Model indicator */}
+                                <div className="flex justify-center mb-4 mt-4">
+                                    <div className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                                        selectedModel === 'transformer' 
+                                            ? 'bg-purple-100 text-purple-800 border border-purple-300' 
+                                            : 'bg-blue-100 text-blue-800 border border-blue-300'
+                                    }`}>
+                                        {selectedModel === 'transformer' ? 'Transformer Model' : 'InceptionV3-GRU Model'}
+                                    </div>
                                 </div>
                                 
                                 <div className="text-center mt-3 text-sm font-mono">

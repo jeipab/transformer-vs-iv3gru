@@ -6,9 +6,51 @@ export default function ProcessingLoader() {
     const [progress, setProgress] = useState(0);
     const [elapsedTime, setElapsedTime] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
+    const [selectedModel, setSelectedModel] = useState('transformer'); // iv3-gru or transformer
 
     // Updated processing steps for InceptionV3-GRU model
-    const processingSteps = [
+    const processingSteps = selectedModel === 'transformer' ? [
+    { 
+        id: 'preprocessing', 
+        label: 'Video Preprocessing', 
+        description: 'Extracting frames and preparing video data for analysis',
+        duration: 1500,
+        icon: FileVideo,
+        details: 'Converting to 30 FPS, MediaPipe keypoint extraction'
+    },
+    { 
+        id: 'keypoint-normalization', 
+        label: 'Feature Normalization', 
+        description: 'Normalizing and structuring keypoints into sequential format',
+        duration: 1200,
+        icon: Eye,
+        details: 'Scale adjustment and sequence creation'
+    },
+    { 
+        id: 'positional-encoding', 
+        label: 'Positional Encoding', 
+        description: 'Applying sinusoidal positional encoding for temporal order',
+        duration: 800,
+        icon: Layers,
+        details: 'Adding temporal position information'
+    },
+    { 
+        id: 'transformer-processing', 
+        label: 'Multi-Head Attention Processing', 
+        description: 'Transformer capturing spatial-temporal dependencies',
+        duration: 3500,
+        icon: Brain,
+        details: 'MHAM analyzing parallel attention patterns'
+    },
+    { 
+        id: 'classification', 
+        label: 'Sign Classification', 
+        description: 'Linear classifier generating final predictions',
+        duration: 1000,
+        icon: Activity,
+        details: 'Softmax layer producing probability distribution'
+    }
+    ] : [
         { 
         id: 'preprocessing', 
         label: 'Video Preprocessing', 
@@ -132,7 +174,9 @@ export default function ProcessingLoader() {
                 <Brain size={32} className="text-white" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Processing Video</h1>
-            <p className="text-lg text-gray-600 mb-1">Analyzing with InceptionV3-GRU Model</p>
+            <p className="text-lg text-gray-600 mb-1">
+                Analyzing with {selectedModel === 'transformer' ? 'MHAM-Transformer' : 'InceptionV3-GRU'} Model
+            </p>
             <p className="text-sm text-gray-500">File: hello_sign.mp4</p>
             </div>
 
@@ -292,7 +336,9 @@ export default function ProcessingLoader() {
                     <Brain size={20} className="text-blue-600" />
                     </div>
                     <div className="text-sm font-medium text-gray-900">Model Architecture</div>
-                    <div className="text-xs text-gray-500">InceptionV3-GRU</div>
+                    <div className="text-xs text-gray-500">
+                        {selectedModel === 'transformer' ? 'MHAM-Transformer' : 'InceptionV3-GRU'}
+                    </div>
                 </div>
                 <div className="text-center">
                     <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-lg mx-auto mb-2">
