@@ -4,6 +4,7 @@ import { Video, CheckCircle, AlertTriangle, Download, Share, Filter, TrendingUp 
 export default function SimplifiedResultsInterface() {
     const [selectedClip, setSelectedClip] = useState(0);
     const [filterMode, setFilterMode] = useState('all'); // all, high_confidence, low_confidence
+    const [selectedModel, setSelectedModel] = useState('iv3-gru'); // iv3-gru or transformer
 
     // Simplified batch results data - model recognitions only
     const batchResults = [
@@ -154,7 +155,16 @@ export default function SimplifiedResultsInterface() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div className="p-6 border-b border-gray-200">
                     <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold text-gray-800">Results Overview</h2>
+                        <div className="flex items-center space-x-3">
+                            <h2 className="text-xl font-semibold text-gray-800">Results Overview</h2>
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
+                                selectedModel === 'transformer' 
+                                    ? 'bg-purple-500 text-white' 
+                                    : 'bg-blue-500 text-white'
+                            }`}>
+                                {selectedModel === 'transformer' ? 'Transformer' : 'IV3-GRU'}
+                            </span>
+                        </div>
                     </div>
                     
                     <div className="flex items-center space-x-4">
