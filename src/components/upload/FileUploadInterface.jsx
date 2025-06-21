@@ -178,7 +178,7 @@ import { Upload, Video, X, Check, AlertCircle, Play, Files, Plus, Download, Shar
         <div className="max-w-7xl mx-auto">
             {/* Header */}
             <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Video Upload Studio</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Video Upload</h1>
             <p className="text-gray-600">Upload and manage your sign language videos for AI analysis</p>
             </div>
 

@@ -369,7 +369,7 @@ export default function KeypointVisualization() {
                                 </div>
                                 
                                 <div className="text-center mt-3 text-sm font-mono">
-                                    {Math.floor(currentFrameIndex / 30)}:{((currentFrameIndex % 30) * (1000/30)/1000).toFixed(2).slice(-2)} / 4:00
+                                    0:{String(Math.floor((currentFrameIndex / 30) % 60)).padStart(2, '0')} / 0:04
                                 </div>
                             </div>
                         </div>
