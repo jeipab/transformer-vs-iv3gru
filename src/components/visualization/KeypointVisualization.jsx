@@ -6,7 +6,7 @@ export default function KeypointVisualization() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [showKeypoints, setShowKeypoints] = useState(true);
     const [showSkeleton, setShowSkeleton] = useState(true);
-    const [selectedModel, setSelectedModel] = useState('transformer'); // iv3-gru or transformer
+    const [selectedModel, setSelectedModel] = useState('iv3-gru'); // iv3-gru or transformer
     
     // Batch navigation state - aligned with results interface
     const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
