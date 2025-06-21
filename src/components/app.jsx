@@ -27,7 +27,7 @@ function App() {
         {/* Navigation Bar */}
         <nav className="bg-white border-b border-gray-200 px-4 py-3">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <h1 className="text-xl font-bold text-gray-900">IV3-GRU FSL Recognizer</h1>
+            <h1 className="text-xl font-bold text-gray-900">Filipino Sign Langauge Recognition</h1>
             <div className="flex space-x-2">
                 {['upload', 'processing', 'visualization', 'results'].map((step) => (
                 <button
