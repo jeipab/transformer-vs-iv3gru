@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Upload, Video, X, Check, AlertCircle, Play, Files, Plus, Download, Share, Edit, Zap, Pause, SkipBack, SkipForward, Volume2, Maximize, Settings } from 'lucide-react';
+import { Upload, Video, X, Check, AlertCircle, Play, Files, Plus, Zap, Pause, SkipBack, SkipForward, Volume2, Maximize, Settings } from 'lucide-react';
 
     export default function FileUploadInterface() {
     const [files, setFiles] = useState([]);
@@ -684,18 +684,6 @@ import { Upload, Video, X, Check, AlertCircle, Play, Files, Plus, Download, Shar
                         >
                         <Zap size={18} className="mr-2" />
                         {isModelSelected ? `Analyze with ${selectedModel.toUpperCase()}` : 'Select Model First'}
-                    </button>
-                    <button className="flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                        <Download size={18} className="mr-2" />
-                        Download
-                    </button>
-                    <button className="flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                        <Share size={18} className="mr-2" />
-                        Share
-                    </button>
-                    <button className="flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                        <Edit size={18} className="mr-2" />
-                        Edit
                     </button>
                     {files.length > 1 && (
                         <button className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm">
