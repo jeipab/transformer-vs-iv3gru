@@ -1,77 +1,113 @@
 import { useState } from 'react';
-import { Video, CheckCircle, AlertTriangle, Download, Share, Filter, TrendingUp } from 'lucide-react';
+import { Video, CheckCircle, AlertTriangle, Download, Filter, TrendingUp, ArrowLeft, Search, SortAsc, SortDesc } from 'lucide-react';
 
-export default function SimplifiedResultsInterface() {
+export default function SimplifiedResultsInterface({ onBack }) {
     const [selectedClip, setSelectedClip] = useState(0);
     const [filterMode, setFilterMode] = useState('all'); // all, high_confidence, low_confidence
     const [selectedModel, setSelectedModel] = useState('iv3-gru'); // iv3-gru or transformer
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sortBy, setSortBy] = useState('filename'); // filename, confidence
+    const [sortOrder, setSortOrder] = useState('asc'); // asc, desc
 
-    // Simplified batch results data - model recognitions only
+    // Static batch results data - model recognitions only
     const batchResults = [
         {
         id: 1,
         filename: "hello_sign.mp4",
         predictedSign: "HELLO",
         confidence: 0.94,
-        processingTime: 156
+        videoUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='56'%3E%3Crect width='100' height='56' fill='%23000'/%3E%3Ctext x='50' y='28' font-family='Arial' font-size='12' fill='white' text-anchor='middle' dominant-baseline='middle'%3EVideo%3C/text%3E%3C/svg%3E"
         },
         {
         id: 2,
         filename: "goodbye_sign.mp4",
         predictedSign: "GOODBYE",
         confidence: 0.89,
-        processingTime: 142
+        videoUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='56'%3E%3Crect width='100' height='56' fill='%23000'/%3E%3Ctext x='50' y='28' font-family='Arial' font-size='12' fill='white' text-anchor='middle' dominant-baseline='middle'%3EVideo%3C/text%3E%3C/svg%3E"
         },
         {
         id: 3,
         filename: "welcome_sign.mp4",
         predictedSign: "HELLO",
         confidence: 0.78,
-        processingTime: 167
+        videoUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='56'%3E%3Crect width='100' height='56' fill='%23000'/%3E%3Ctext x='50' y='28' font-family='Arial' font-size='12' fill='white' text-anchor='middle' dominant-baseline='middle'%3EVideo%3C/text%3E%3C/svg%3E"
         },
         {
         id: 4,
         filename: "thank_you_sign.mp4",
         predictedSign: "THANK YOU",
         confidence: 0.92,
-        processingTime: 189
+        videoUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='56'%3E%3Crect width='100' height='56' fill='%23000'/%3E%3Ctext x='50' y='28' font-family='Arial' font-size='12' fill='white' text-anchor='middle' dominant-baseline='middle'%3EVideo%3C/text%3E%3C/svg%3E"
         },
         {
         id: 5,
         filename: "please_sign.mp4",
         predictedSign: "PLEASE",
         confidence: 0.87,
-        processingTime: 203
+        videoUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='56'%3E%3Crect width='100' height='56' fill='%23000'/%3E%3Ctext x='50' y='28' font-family='Arial' font-size='12' fill='white' text-anchor='middle' dominant-baseline='middle'%3EVideo%3C/text%3E%3C/svg%3E"
         },
         {
         id: 6,
         filename: "yes_sign.mp4",
         predictedSign: "NO",
         confidence: 0.65,
-        processingTime: 174
+        videoUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='56'%3E%3Crect width='100' height='56' fill='%23000'/%3E%3Ctext x='50' y='28' font-family='Arial' font-size='12' fill='white' text-anchor='middle' dominant-baseline='middle'%3EVideo%3C/text%3E%3C/svg%3E"
         },
         {
         id: 7,
         filename: "no_sign.mp4",
         predictedSign: "NO",
         confidence: 0.91,
-        processingTime: 158
+        videoUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='56'%3E%3Crect width='100' height='56' fill='%23000'/%3E%3Ctext x='50' y='28' font-family='Arial' font-size='12' fill='white' text-anchor='middle' dominant-baseline='middle'%3EVideo%3C/text%3E%3C/svg%3E"
         },
         {
         id: 8,
         filename: "sorry_sign.mp4",
         predictedSign: "SORRY",
         confidence: 0.83,
-        processingTime: 195
+        videoUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='56'%3E%3Crect width='100' height='56' fill='%23000'/%3E%3Ctext x='50' y='28' font-family='Arial' font-size='12' fill='white' text-anchor='middle' dominant-baseline='middle'%3EVideo%3C/text%3E%3C/svg%3E"
         }
     ];
 
-    const filteredResults = batchResults.filter(result => {
-        if (filterMode === 'all') return true;
-        if (filterMode === 'high_confidence') return result.confidence >= 0.8;
-        if (filterMode === 'low_confidence') return result.confidence < 0.8;
-        return true;
-    });
+    // Filter and sort results
+    const getFilteredAndSortedResults = () => {
+        let filtered = batchResults.filter(result => {
+            // Apply confidence filter
+            const confidenceFilter = (() => {
+                if (filterMode === 'high_confidence') return result.confidence >= 0.8;
+                if (filterMode === 'low_confidence') return result.confidence < 0.8;
+                return true;
+            })();
+            
+            // Apply search filter
+            const searchFilter = result.filename.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                               result.predictedSign.toLowerCase().includes(searchTerm.toLowerCase());
+            
+            return confidenceFilter && searchFilter;
+        });
+
+        // Sort results
+        filtered.sort((a, b) => {
+            let comparison = 0;
+            
+            switch (sortBy) {
+                case 'filename':
+                    comparison = a.filename.localeCompare(b.filename);
+                    break;
+                case 'confidence':
+                    comparison = a.confidence - b.confidence;
+                    break;
+                default:
+                    comparison = 0;
+            }
+            
+            return sortOrder === 'asc' ? comparison : -comparison;
+        });
+
+        return filtered;
+    };
+
+    const filteredResults = getFilteredAndSortedResults();
 
     const getOverallStats = () => {
         const total = batchResults.length;
@@ -87,24 +123,42 @@ export default function SimplifiedResultsInterface() {
 
     const stats = getOverallStats();
 
+    const handleSort = (newSortBy) => {
+        if (sortBy === newSortBy) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortBy(newSortBy);
+            setSortOrder('asc');
+        }
+    };
+
+    const handleVideoSelect = (result, index) => {
+        setSelectedClip(index);
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6">
         <div className="max-w-7xl mx-auto">
             {/* Header */}
             <div className="mb-6">
             <div className="flex items-center justify-between">
-                <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Recognition Results</h1>
-                <p className="text-gray-600">Sign language recognition analysis results</p>
+                <div className="flex items-center">
+                    <button 
+                        onClick={onBack}
+                        className="flex items-center px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-white rounded-lg transition-colors mr-4"
+                    >
+                        <ArrowLeft size={18} className="mr-1" />
+                        Back
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">Recognition Results</h1>
+                        <p className="text-gray-600">Sign language recognition analysis results</p>
+                    </div>
                 </div>
                 <div className="flex items-center space-x-3">
                 <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                     <Download size={18} className="mr-2" />
                     Export Results
-                </button>
-                <button className="flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                    <Share size={18} className="mr-2" />
-                    Share
                 </button>
                 </div>
             </div>
@@ -149,6 +203,59 @@ export default function SimplifiedResultsInterface() {
             </div>
             </div>
 
+            {/* Search and Filter Controls */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+                <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-center space-x-2">
+                        <Search size={16} className="text-gray-500" />
+                        <input
+                            type="text"
+                            placeholder="Search files or signs..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="text-sm border border-gray-300 rounded-lg px-3 py-2 w-64"
+                        />
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                        <Filter size={16} className="text-gray-500" />
+                        <select 
+                            value={filterMode} 
+                            onChange={(e) => setFilterMode(e.target.value)}
+                            className="text-sm border border-gray-300 rounded-lg px-3 py-2"
+                        >
+                            <option value="all">All Results</option>
+                            <option value="high_confidence">High Confidence (≥80%)</option>
+                            <option value="low_confidence">Low Confidence (&lt;80%)</option>
+                        </select>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-500">Sort by:</span>
+                        <button
+                            onClick={() => handleSort('filename')}
+                            className={`flex items-center px-3 py-1 rounded text-sm transition-colors ${
+                                sortBy === 'filename' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                        >
+                            Filename {sortBy === 'filename' && (sortOrder === 'asc' ? <SortAsc size={14} className="ml-1" /> : <SortDesc size={14} className="ml-1" />)}
+                        </button>
+                        <button
+                            onClick={() => handleSort('confidence')}
+                            className={`flex items-center px-3 py-1 rounded text-sm transition-colors ${
+                                sortBy === 'confidence' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                        >
+                            Confidence {sortBy === 'confidence' && (sortOrder === 'asc' ? <SortAsc size={14} className="ml-1" /> : <SortDesc size={14} className="ml-1" />)}
+                        </button>
+                    </div>
+                    
+                    <div className="text-sm text-gray-500 ml-auto">
+                        Showing {filteredResults.length} of {batchResults.length} results
+                    </div>
+                </div>
+            </div>
+
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             {/* Results Table */}
             <div className="xl:col-span-2">
@@ -166,21 +273,6 @@ export default function SimplifiedResultsInterface() {
                             </span>
                         </div>
                     </div>
-                    
-                    <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2">
-                        <Filter size={16} className="text-gray-500" />
-                        <select 
-                        value={filterMode} 
-                        onChange={(e) => setFilterMode(e.target.value)}
-                        className="text-sm border border-gray-300 rounded-lg px-3 py-1"
-                        >
-                        <option value="all">All Results</option>
-                        <option value="high_confidence">High Confidence (≥80%)</option>
-                        <option value="low_confidence">Low Confidence (&lt;80%)</option>
-                        </select>
-                    </div>
-                    </div>
                 </div>
                 
                 <div className="overflow-x-auto">
@@ -190,7 +282,6 @@ export default function SimplifiedResultsInterface() {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Video</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recognized Sign</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Confidence</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Processing Time</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -200,7 +291,7 @@ export default function SimplifiedResultsInterface() {
                             className={`hover:bg-gray-50 cursor-pointer transition-colors ${
                             selectedClip === index ? 'bg-blue-50 border-l-4 border-blue-500' : ''
                             }`}
-                            onClick={() => setSelectedClip(index)}
+                            onClick={() => handleVideoSelect(result, index)}
                         >
                             <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
@@ -234,9 +325,6 @@ export default function SimplifiedResultsInterface() {
                                 </span>
                             </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{result.processingTime}ms</div>
-                            </td>
                         </tr>
                         ))}
                     </tbody>
@@ -249,6 +337,22 @@ export default function SimplifiedResultsInterface() {
             <div className="space-y-6">
                 {filteredResults[selectedClip] && (
                 <>
+                    {/* Video Preview */}
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div className="p-4 border-b border-gray-200">
+                            <h3 className="text-lg font-semibold text-gray-800">Video Preview</h3>
+                        </div>
+                        <div className="relative bg-black aspect-video">
+                            <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                                <div className="text-center text-white">
+                                    <Video size={48} className="mx-auto mb-2 opacity-50" />
+                                    <p className="text-sm opacity-75">Video Preview</p>
+                                    <p className="text-xs opacity-50">{filteredResults[selectedClip].filename}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Selected Video</h3>
                     <div className="space-y-4">
@@ -279,58 +383,6 @@ export default function SimplifiedResultsInterface() {
                             </span>
                         </div>
                         </div>
-                        
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                        <div className="text-sm font-medium text-gray-900 mb-1">Processing Time</div>
-                        <div className="text-lg font-bold text-gray-700">{filteredResults[selectedClip].processingTime}ms</div>
-                        </div>
-                    </div>
-                    </div>
-                    
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Recognition Details</h3>
-                    <div className="space-y-3">
-                        {filteredResults[selectedClip].confidence >= 0.8 && (
-                        <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <div className="flex items-center">
-                            <CheckCircle size={20} className="text-green-600 mr-2" />
-                            <div>
-                                <div className="font-medium text-green-800">High Confidence Recognition</div>
-                                <div className="text-sm text-green-700">
-                                The model is confident about this recognition ({(filteredResults[selectedClip].confidence * 100).toFixed(1)}%).
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                        )}
-                        
-                        {filteredResults[selectedClip].confidence < 0.8 && filteredResults[selectedClip].confidence >= 0.6 && (
-                        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <div className="flex items-center">
-                            <AlertTriangle size={20} className="text-yellow-600 mr-2" />
-                            <div>
-                                <div className="font-medium text-yellow-800">Moderate Confidence</div>
-                                <div className="text-sm text-yellow-700">
-                                The model has moderate confidence in this recognition ({(filteredResults[selectedClip].confidence * 100).toFixed(1)}%).
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                        )}
-                        
-                        {filteredResults[selectedClip].confidence < 0.6 && (
-                        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                            <div className="flex items-center">
-                            <AlertTriangle size={20} className="text-red-600 mr-2" />
-                            <div>
-                                <div className="font-medium text-red-800">Low Confidence</div>
-                                <div className="text-sm text-red-700">
-                                The model has low confidence in this recognition ({(filteredResults[selectedClip].confidence * 100).toFixed(1)}%). Review recommended.
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                        )}
                     </div>
                     </div>
                 </>
