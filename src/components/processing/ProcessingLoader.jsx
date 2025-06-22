@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Video, Brain, Eye, Layers, ArrowRight, CheckCircle, Clock, Zap, Activity, FileVideo, Database } from 'lucide-react';
+import { Video, Brain, Eye, Layers, ArrowRight, CheckCircle, Clock, Zap, Activity, FileVideo, Database, X } from 'lucide-react';
 
 export default function ProcessingLoader() {
     const [currentStep, setCurrentStep] = useState(0);
@@ -357,15 +357,19 @@ export default function ProcessingLoader() {
                 </div>
             </div>
             </div>
-
-            {/* Timer Display */}
-            <div className="text-center mt-6">
-            <div className="inline-flex items-center px-4 py-2 bg-white rounded-full shadow-sm border border-gray-200">
-                <Clock size={16} className="text-gray-500 mr-2" />
-                <span className="text-sm font-medium text-gray-700">
-                Elapsed Time: {formatTime(elapsedTime)}
-                </span>
-            </div>
+            {/* Cancel Button */}
+            <div className="text-center mt-4">
+                <button 
+                    onClick={() => {
+                        if (window.confirm('Are you sure you want to cancel processing? This will return you to the upload screen.')) {
+                            onBack();
+                        }
+                    }}
+                    className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium shadow-sm"
+                >
+                    <X size={16} className="mr-2" />
+                    Cancel Processing
+                </button>
             </div>
         </div>
         </div>
