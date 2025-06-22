@@ -4,7 +4,7 @@ import { Video, CheckCircle, AlertTriangle, Download, Filter, TrendingUp, ArrowL
 export default function SimplifiedResultsInterface({ onBack }) {
     const [selectedClip, setSelectedClip] = useState(0);
     const [filterMode, setFilterMode] = useState('all'); // all, high_confidence, low_confidence
-    const [selectedModel, setSelectedModel] = useState('iv3-gru'); // iv3-gru or transformer
+    const [selectedModel, setSelectedModel] = useState('transformer'); // iv3-gru or transformer
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('filename'); // filename, confidence
     const [sortOrder, setSortOrder] = useState('asc'); // asc, desc
